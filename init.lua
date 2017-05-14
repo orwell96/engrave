@@ -33,13 +33,16 @@ minetest.register_node("engrave:table", {
 				name=metaname
 			end
 		end
-		
-		minetest.show_formspec(pname, "engrave", "field[name;Enter a new name for this "..what..";"..name.."]")
+		local fieldtype = "field"
+		if minetest.check_player_privs(pname, {engrave_long_names=true}) then
+			fieldtype = "textarea"
+		end
+		minetest.show_formspec(pname, "engrave", "size[5.5,2.5]"..fieldtype.."[0.5,0.5;5,1;name;Enter a new name for this "..what..";"..name.."]button_exit[1,1.5;3,1;ok;OK]")
 	end,
 })
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-	if formname=="engrave" and fields.name then
+	if formname=="engrave" and fields.name and fields.ok then
 		local pname=player:get_player_name()
 		if (#fields.name>40 or string.match(fields.name, "\n", nil, true)) and not minetest.check_player_privs(pname, {engrave_long_names=true}) then
 			minetest.chat_send_player(pname, "Insufficient Privileges: Item names that are longer than 40 characters and/or contain newlines require the 'engrave_long_names' privilege")
